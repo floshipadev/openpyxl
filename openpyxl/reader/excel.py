@@ -250,16 +250,31 @@ class ExcelReader:
 
 
     def read(self):
-        self.read_manifest()
-        self.read_strings()
-        self.read_workbook()
-        self.read_properties()
-        self.read_theme()
-        apply_stylesheet(self.archive, self.wb)
-        self.read_worksheets()
-        self.parser.assign_names()
-        if not self.read_only:
-            self.archive.close()
+        action = "read manifest"
+        try:
+            self.read_manifest()
+            action = "read strings"
+            self.read_strings()
+            action = "read workbook"
+            self.read_workbook()
+            action = "read properties"
+            self.read_properties()
+            action = "read theme"
+            self.read_theme()
+            action = "read stylesheet"
+            apply_stylesheet(self.archive, self.wb)
+            action = "read worksheets"
+            self.read_worksheets()
+            action = "assign names"
+            self.parser.assign_names()
+            if not self.read_only:
+                self.archive.close()
+        except ValueError as e:
+            raise ValueError(
+                f"Unable to read workbook: could not {action} from {self.archive.filename}.\n"
+                "This is most probably because the workbook source files contain some invalid XML.\n"
+                "Please see the exception for more details."
+                ) from e
 
 
 class WorksheetProcessor:
