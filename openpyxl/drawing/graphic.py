@@ -72,6 +72,7 @@ class NonVisualGraphicFrame(Serialisable):
     tagname = "nvGraphicFramePr"
 
     cNvPr = Typed(expected_type=NonVisualDrawingProps)
+    non_visual_props = Alias("cNvPr")
     cNvGraphicFramePr = Typed(expected_type=NonVisualGraphicFrameProperties)
 
     __elements__ = ('cNvPr', 'cNvGraphicFramePr')
@@ -125,6 +126,7 @@ class GraphicFrame(Serialisable):
     tagname = "graphicFrame"
 
     nvGraphicFramePr = Typed(expected_type=NonVisualGraphicFrame)
+    props = Alias("nvGraphicFramePr")
     xfrm = Typed(expected_type=XDRTransform2D)
     graphic = Typed(expected_type=GraphicObject)
     macro = String(allow_none=True)

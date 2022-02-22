@@ -156,6 +156,8 @@ class SpreadsheetDrawing(Serialisable):
             if isinstance(obj, ChartBase):
                 rel = Relationship(type="chart", Target=obj.path)
                 anchor.graphicFrame = self._chart_frame(idx)
+                if obj.hidden:
+                    anchor.graphicFrame.props.non_visual_props.hidden = True
 
             elif isinstance(obj, Image):
                 rel = Relationship(type="image", Target=obj.path)
@@ -204,7 +206,7 @@ class SpreadsheetDrawing(Serialisable):
     def _chart_frame(self, idx):
         chart_rel = ChartRelation(f"rId{idx}")
         frame = GraphicFrame()
-        nv = frame.nvGraphicFramePr.cNvPr
+        nv = frame.props.non_visual_props
         nv.id = idx
         nv.name = "Chart {0}".format(idx)
         frame.graphic.graphicData.chart = chart_rel
@@ -248,7 +250,6 @@ class SpreadsheetDrawing(Serialisable):
                 rel = graphic.graphicData.chart
                 if rel is not None:
                     rel.anchor = anchor
-                    rel.anchor.graphicFrame = None
                     rels.append(rel)
         return rels
 

@@ -52,6 +52,8 @@ def find_images(archive, path):
         cs = get_rel(archive, deps, rel.id, ChartSpace)
         chart = read_chart(cs)
         chart.anchor = rel.anchor
+        if rel.anchor.graphicFrame.props.non_visual_props.hidden:
+            chart.hidden = True
         charts.append(chart)
 
     if not PILImage: # Pillow not installed, drop images

@@ -63,6 +63,7 @@ class ChartBase(Serialisable):
     style = MinMax(allow_none=True, min=1, max=48)
     mime_type = "application/vnd.openxmlformats-officedocument.drawingml.chart+xml"
     graphical_properties = Typed(expected_type=GraphicalProperties, allow_none=True) # mapped to chartspace
+    hidden = Bool(allow_none=True) # mapped to GraphicFrame in parent drawing
 
     __elements__ = ()
 
@@ -83,6 +84,7 @@ class ChartBase(Serialisable):
         self.visible_cells_only = True
         self.idx_base = 0
         self.graphical_properties = None
+        self.hidden = None
         super(ChartBase, self).__init__()
 
 
