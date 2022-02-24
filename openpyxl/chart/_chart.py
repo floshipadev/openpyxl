@@ -64,6 +64,7 @@ class ChartBase(Serialisable):
     mime_type = "application/vnd.openxmlformats-officedocument.drawingml.chart+xml"
     graphical_properties = Typed(expected_type=GraphicalProperties, allow_none=True) # mapped to chartspace
     hidden = Bool(allow_none=True) # mapped to GraphicFrame in parent drawing
+    hide_title = Bool(allow_none=True)
 
     __elements__ = ()
 
@@ -85,6 +86,7 @@ class ChartBase(Serialisable):
         self.idx_base = 0
         self.graphical_properties = None
         self.hidden = None
+        self.hide_title = None
         super(ChartBase, self).__init__()
 
 

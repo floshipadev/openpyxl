@@ -155,7 +155,7 @@ class SpreadsheetDrawing(Serialisable):
             anchor = _check_anchor(obj)
             if isinstance(obj, ChartBase):
                 rel = Relationship(type="chart", Target=obj.path)
-                anchor.graphicFrame = self._chart_frame(idx)
+                anchor.graphicFrame = self._chart_frame(idx, anchor.graphicFrame)
                 if obj.hidden:
                     anchor.graphicFrame.props.non_visual_props.hidden = True
 
@@ -203,12 +203,12 @@ class SpreadsheetDrawing(Serialisable):
         return tree
 
 
-    def _chart_frame(self, idx):
+    def _chart_frame(self, idx, frame=None):
         chart_rel = ChartRelation(f"rId{idx}")
-        frame = GraphicFrame()
-        nv = frame.props.non_visual_props
-        nv.id = idx
-        nv.name = "Chart {0}".format(idx)
+        if frame is None:
+            frame = GraphicFrame()
+            frame.props.non_visual_props.name = "Chart {0}".format(idx)
+        frame.props.non_visual_props.id = idx
         frame.graphic.graphicData.chart = chart_rel
         return frame
 
