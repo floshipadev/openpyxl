@@ -1,15 +1,12 @@
 
 # Copyright (c) 2010-2022 openpyxl
 
-
-from io import BytesIO
 from warnings import warn
 
 from openpyxl.xml.functions import fromstring
-from openpyxl.xml.constants import IMAGE_NS, REL_NS
 from openpyxl.packaging.relationship import get_rel, get_rels_path, get_dependents
 from openpyxl.drawing.spreadsheet_drawing import SpreadsheetDrawing
-from openpyxl.drawing.image import Image, PILImage, ImageGroup
+from openpyxl.drawing.image import PILImage, ImageGroup
 from openpyxl.chart.chartspace import ChartSpace
 from openpyxl.chart.reader import read_chart
 
