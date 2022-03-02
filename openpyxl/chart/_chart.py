@@ -64,7 +64,7 @@ class ChartBase(Serialisable):
     mime_type = "application/vnd.openxmlformats-officedocument.drawingml.chart+xml"
     graphical_properties = Typed(expected_type=GraphicalProperties, allow_none=True) # mapped to chartspace
     hidden = Bool(allow_none=True) # mapped to GraphicFrame in parent drawing
-    hide_title = Bool(allow_none=True)
+    hide_title = Bool(allow_none=True) # mapped to Chart Container
 
     __elements__ = ()
 
@@ -146,6 +146,7 @@ class ChartBase(Serialisable):
         container.plotVisOnly = self.visible_cells_only
         container.dispBlanksAs = self.display_blanks
         container.pivotFmts = self.pivotFormats
+        container.autoTitleDeleted = self.hide_title
         cs = ChartSpace(chart=container)
         cs.style = self.style
         cs.roundedCorners = self.roundedCorners
