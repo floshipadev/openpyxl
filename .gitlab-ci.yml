@@ -13,7 +13,7 @@ stages:
   coverage: '/TOTAL.+ ([0-9]{1,3}%)/'
   script:
     tox -- -qq -xrf
-    
+
 test-python38:
   <<: *unit
   image: python:3.8
@@ -32,11 +32,11 @@ test-python310:
   variables:
     TOXENV: py310
 
-test-python311:
-  <<: *unit
-  image: python:3.11-rc
-  variables:
-    TOXENV: py311
+# test-python311:
+#   <<: *unit
+#   image: python:3.11-rc
+#   variables:
+#     TOXENV: py311
 
 test-pypy3:
   <<: *unit
