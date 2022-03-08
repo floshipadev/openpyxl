@@ -3,13 +3,12 @@ stages:
 
 .unit-test: &unit
   stage: test
+  image: python:3
   variables:
     PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-  script:
-    - tox --skip-missing-interpreters -- -qqrf
   before_script:
     - python -V
-    - pip install tox
+    - pip install -r requirements.txt
     - pip install -e .
   coverage: '/TOTAL.+ ([0-9]{1,3}%)/'
 
@@ -31,6 +30,12 @@ test-python310:
   variables:
     TOXENV: py310
 
+test-python311:
+  <<: *unit
+  image: python:3.11-rc
+  variables:
+    TOXENV: py311
+
 test-pypy3:
   <<: *unit
   image: pypy:3
@@ -50,3 +55,8 @@ test-coverage:
     - export GIT_BRANCH=$(hg branch)
     - export GIT_URL=https://foss.heptapod.net/openpyxl/openpyxl
     - tox -e cov
+  coverage: '/^TOTAL.+?(\d+\%)$/'
+
+  artifacts:
+    reports:
+      cobertura: coverage.xml
