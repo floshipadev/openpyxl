@@ -101,7 +101,6 @@ class WorkSheetParser(object):
     def __init__(self, src, shared_strings, data_only=False,
                  epoch=WINDOWS_EPOCH, date_formats=set(),
                  timedelta_formats=set(), rich_text=False):
-                 timedelta_formats=set()):
         self.min_row = self.min_col = None
         self.epoch = epoch
         self.source = src
