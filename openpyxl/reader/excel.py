@@ -232,7 +232,7 @@ class ExcelReader:
             processor.find_children((rel.target))
             ws._rels = processor.rels
 
-            ws_parser = WorksheetReader(ws, fh, self.shared_strings, self.data_only)
+            ws_parser = WorksheetReader(ws, fh, self.shared_strings, self.data_only, self.rich_text)
             ws_parser.bind_all()
             ws.sheet_state = sheet.state
 
