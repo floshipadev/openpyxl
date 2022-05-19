@@ -29,6 +29,7 @@ Bugfixes
 Pull Requests
 -------------
 
+* `PR409 <https://foss.heptapod.net/openpyxl/openpyxl/-/merge_requests/409/>`_ Support for Rich Text in cells
 * `PR411 <https://foss.heptapod.net/openpyxl/openpyxl/-/merge_requests/411/>`_ Provide more information when workbook cannot be loaded
 
 
@@ -38,7 +39,7 @@ Deprecations
 The following properties have been removed from worksheets: formula_attributes, page_breaks, show_summary_below, show_summary_right. Client code should use the relevant objects.
 
 
-3.0.10 (unreleased)
+3.0.10 (2021-05-13)
 ===================
 
 
