@@ -44,7 +44,7 @@ from .workbook import WorkbookParser
 from openpyxl.styles.stylesheet import apply_stylesheet
 
 from openpyxl.packaging.core import DocumentProperties
-from openpyxl.packaging.custom import CustomDocumentPropertyList
+from openpyxl.packaging.custom import CustomPropertyList
 from openpyxl.packaging.manifest import Manifest, Override
 
 from openpyxl.packaging.relationship import (
@@ -147,10 +147,13 @@ class ExcelReader:
 
     def read_strings(self):
         ct = self.package.find(SHARED_STRINGS)
+        reader = read_string_table
+        if self.rich_text:
+            reader = read_rich_text
         if ct is not None:
             strings_path = ct.PartName[1:]
             with self.archive.open(strings_path,) as src:
-                self.shared_strings = read_string_table(src)
+                self.shared_strings = reader(src)
 
 
     def read_workbook(self):
@@ -178,9 +181,12 @@ class ExcelReader:
             src = fromstring(self.archive.read(ARC_CORE))
             self.wb.properties = DocumentProperties.from_tree(src)
 
+
+    def read_custom(self):
         if ARC_CUSTOM in self.valid_files:
             src = fromstring(self.archive.read(ARC_CUSTOM))
-            self.wb.custom_doc_props = CustomDocumentPropertyList.from_tree(src)
+            self.wb.custom_doc_props = CustomPropertyList.from_tree(src)
+
 
     def read_theme(self):
         if ARC_THEME in self.valid_files:
@@ -260,6 +266,8 @@ class ExcelReader:
             self.read_workbook()
             action = "read properties"
             self.read_properties()
+            action = "read custom properties"
+            self.read_custom()
             action = "read theme"
             self.read_theme()
             action = "read stylesheet"

@@ -31,6 +31,7 @@ Pull Requests
 
 * `PR409 <https://foss.heptapod.net/openpyxl/openpyxl/-/merge_requests/409/>`_ Support for Rich Text in cells
 * `PR411 <https://foss.heptapod.net/openpyxl/openpyxl/-/merge_requests/411/>`_ Provide more information when workbook cannot be loaded
+* `PR407` <https://foss.heptapod.net/openpyxl/openpyxl/-/merge_requests/407/>`_ Support for Custom Document Properties
 
 
 Deprecations
@@ -39,7 +40,7 @@ Deprecations
 The following properties have been removed from worksheets: formula_attributes, page_breaks, show_summary_below, show_summary_right. Client code should use the relevant objects.
 
 
-3.0.10 (2021-05-13)
+3.0.10 (2022-05-19)
 ===================
 
 
