@@ -278,7 +278,7 @@ def Reference():
 class TestReference:
 
     def test_ctor(self, Reference):
-        ref = Reference(field=4294967294, x=0, selected=False)
+        ref = Reference(field=4294967294, x=[0], selected=False)
         xml = tostring(ref.to_tree())
         expected = """
         <reference field="4294967294" selected="0">
@@ -297,7 +297,7 @@ class TestReference:
         """
         node = fromstring(src)
         ref = Reference.from_tree(node)
-        assert ref == Reference(field=4294967294, x=0, selected=False)
+        assert ref == Reference(field=4294967294, x=[0], selected=False)
 
 
 @pytest.fixture
@@ -390,7 +390,7 @@ class TestPivotFilter:
         expected = """
         <filter fld="0" type="dateBetween" evalOrder="-1" id="6">
             <autoFilter ref="A1">
-                <filterColumn colId="0">
+                <filterColumn colId="0" hiddenButton="0" showButton="1">
                     <customFilters and="1">
                         <customFilter operator="greaterThanOrEqual" val="1"/>
                         <customFilter operator="lessThanOrEqual" val="2"/>
