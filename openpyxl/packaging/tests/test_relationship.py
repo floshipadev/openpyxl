@@ -156,8 +156,9 @@ def test_get_external_link(datadir):
 def test_expanding_rel_path(datadir, get_dependents):
     datadir.chdir()
     rel_path = "xl/drawings/_rels/drawing1.rels.xml"
-    archive = ZipFile(BytesIO(), "w")
-    archive.write("drawing1.xml.rels", rel_path)
+    archive = ZipFile(BytesIO(), "a")
+    with open("drawing1.xml.rels", "rb") as src:
+        archive.writestr(rel_path, src.read())
 
     rels = get_dependents(archive, rel_path)
     targets = [r.Target for r in rels.Relationship]
