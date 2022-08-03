@@ -3,7 +3,6 @@
 
 # Python stdlib imports
 from tempfile import NamedTemporaryFile
-from io import BytesIO
 import zipfile
 
 # package imports
