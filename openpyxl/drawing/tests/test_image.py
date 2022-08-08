@@ -58,6 +58,11 @@ class TestImage:
         img = Image(filename)
         assert img._data()[:10] == chars
 
+    @pytest.mark.pil_required
+    def test_save_with_alt_text(self, Image, datadir):
+        datadir.chdir()
+        img = Image("plain.png", "This alt text should not matter")
+        assert img._data()[:10] == b'\x89PNG\r\n\x1a\n\x00\x00'
 
     @pytest.mark.pil_required
     def test_convert(self, Image, datadir):

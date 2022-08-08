@@ -166,7 +166,7 @@ class SpreadsheetDrawing(Serialisable):
                     child.blipFill.blip.embed = f"rId{idx}"
 
                 else:
-                    anchor.pic = self._picture_frame(idx)
+                    anchor.pic = self._picture_frame(idx, obj.desc)
 
             elif isinstance(obj, ImageGroup):
                 for img, pic in zip(obj.images, anchor.groupShape.pic):
@@ -213,9 +213,10 @@ class SpreadsheetDrawing(Serialisable):
         return frame
 
 
-    def _picture_frame(self, idx):
+    def _picture_frame(self, idx, desc = None):
         pic = PictureFrame()
-        pic.nvPicPr.cNvPr.descr = "Picture"
+        pic.nvPicPr.cNvPr.descr = desc
+
         pic.nvPicPr.cNvPr.id = idx
         pic.nvPicPr.cNvPr.name = "Image {0}".format(idx)
 

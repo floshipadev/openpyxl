@@ -38,12 +38,16 @@ class Image(object):
     format = "PNG"
     rel_type = IMAGE_NS
 
-    def __init__(self, img):
+    # Also know as Alt Text, but the xml tag refers to 'descr'
+    desc = None 
+
+    def __init__(self, img, desc = None):
 
         self.ref = img
         mark_to_close = isinstance(img, str)
         image = _import_image(img)
         self.width, self.height = image.size
+        self.desc = desc
 
         try:
             self.format = image.format
