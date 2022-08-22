@@ -46,7 +46,11 @@ def find_images(archive, path):
             link.id = None
 
     for rel in drawing._chart_rels:
-        cs = get_rel(archive, deps, rel.id, ChartSpace)
+        try:
+            cs = get_rel(archive, deps, rel.id, ChartSpace)
+        except TypeError as e:
+            warn(f"Unable to read chart {rel.id} from {path} {e}")
+            continue
         chart = read_chart(cs)
         chart.anchor = rel.anchor
         if rel.anchor.graphicFrame.props.non_visual_props.hidden:
