@@ -1,6 +1,5 @@
 # Copyright (c) 2010-2022 openpyxl
 
-import posixpath
 from warnings import warn
 
 from openpyxl.xml.functions import fromstring
@@ -10,10 +9,10 @@ from openpyxl.packaging.relationship import (
     get_rels_path,
     get_rel,
 )
-from openpyxl.packaging.manifest import Manifest
 from openpyxl.packaging.workbook import WorkbookPackage
 from openpyxl.workbook import Workbook
 from openpyxl.workbook.defined_name import (
+    DefinedNameList,
     _unpack_print_area,
     _unpack_print_titles,
 )
@@ -31,6 +30,7 @@ class WorkbookParser:
     def __init__(self, archive, workbook_part_name, keep_links=True):
         self.archive = archive
         self.workbook_part_name = workbook_part_name
+        self.defined_names = DefinedNameList()
         self.wb = Workbook()
         self.keep_links = keep_links
         self.sheets = []
@@ -57,7 +57,7 @@ class WorkbookParser:
         self.wb.calculation = package.calcPr
         self.caches = package.pivotCaches
 
-        #external links contain cached worksheets and can be very big
+        # external links contain cached worksheets and can be very big
         if not self.keep_links:
             package.externalReferences = []
 
@@ -68,8 +68,8 @@ class WorkbookParser:
             )
 
         if package.definedNames:
-            package.definedNames._cleanup()
-            self.wb.defined_names = package.definedNames
+            #package.definedNames._cleanup()
+            self.defined_names = package.definedNames
 
         self.wb.security = package.workbookProtection
 
@@ -92,28 +92,37 @@ class WorkbookParser:
 
     def assign_names(self):
         """
-        Bind reserved names to parsed worksheets
+        Bind defined names and other definitions to worksheets or the workbook
         """
-        defns = []
 
-        for defn in self.wb.defined_names.definedName:
-            reserved = defn.is_reserved
-            if reserved in ("Print_Titles", "Print_Area"):
-                try:
-                    sheet = self.wb._sheets[defn.localSheetId]
-                except IndexError:
-                    warn(f"Worksheet for printer setting {defn.attr_text} cannot be located and will be removed")
-                    continue
+        for idx, names in self.defined_names.by_sheet().items():
+            if idx == "global":
+                self.wb.defined_names = names
+                continue
+
+            try:
+                sheet = self.wb._sheets[idx]
+            except IndexError:
+                warn(f"Defined names for sheet index {idx} cannot be located")
+                continue
+
+            settings = []
+            for name, defn in names.items():
+                reserved = defn.is_reserved
+                if reserved is not None:
+                    settings.append(name)
                 if reserved == "Print_Titles":
                     rows, cols = _unpack_print_titles(defn)
                     sheet.print_title_rows = rows
                     sheet.print_title_cols = cols
                 elif reserved == "Print_Area":
                     sheet.print_area = _unpack_print_area(defn)
-            else:
-                defns.append(defn)
-        self.wb.defined_names.definedName = defns
 
+            for name in settings:
+                del names[name]
+            sheet.defined_names = names
+
+        return
 
     @property
     def pivot_caches(self):
@@ -126,5 +135,5 @@ class WorkbookParser:
             if cache.deps:
                 records = get_rel(self.archive, cache.deps, cache.id, RecordList)
                 cache.records = records
-            d[c.cacheId]  = cache
+            d[c.cacheId] = cache
         return d

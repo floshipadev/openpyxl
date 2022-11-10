@@ -23,7 +23,7 @@ class PictureLocking(Serialisable):
     tagname = "picLocks"
     namespace = DRAWING_NS
 
-    #Using attribute group AG_Locking
+    # Using attribute group AG_Locking
     noCrop = Bool(allow_none=True)
     noGrp = Bool(allow_none=True)
     noSelect = Bool(allow_none=True)
