@@ -15,7 +15,7 @@ def find_images(archive, path):
     """
     Given the path to a drawing file extract charts and images and supported shapes
 
-    Ingore errors due to unsupported parts of DrawingML
+    Ignore errors due to unsupported parts of DrawingML
     """
 
     charts = []

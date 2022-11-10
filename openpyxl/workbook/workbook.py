@@ -29,7 +29,7 @@ from openpyxl.styles.named_styles import NamedStyleList
 from openpyxl.styles.table import TableStyleList
 
 from openpyxl.chartsheet import Chartsheet
-from .defined_name import DefinedName, DefinedNameList
+from .defined_name import DefinedName, DefinedNameDict
 from openpyxl.packaging.core import DocumentProperties
 from openpyxl.packaging.custom import CustomPropertyList
 from openpyxl.packaging.relationship import RelationshipList
@@ -63,7 +63,7 @@ class Workbook(object):
         self._sheets = []
         self._pivots = []
         self._active_sheet_index = 0
-        self.defined_names = DefinedNameList()
+        self.defined_names = DefinedNameDict()
         self._external_links = []
         self.properties = DocumentProperties()
         self.custom_doc_props = CustomPropertyList()
@@ -233,9 +233,6 @@ class Workbook(object):
     def remove(self, worksheet):
         """Remove `worksheet` from this workbook."""
         idx = self._sheets.index(worksheet)
-        localnames = self.defined_names.localnames(scope=idx)
-        for name in localnames:
-            self.defined_names.delete(name, scope=idx)
         self._sheets.remove(worksheet)
 
 
@@ -329,15 +326,19 @@ class Workbook(object):
         """
         return [s.title for s in self._sheets]
 
+
+    @deprecated("Assign scoped named ranges directly to worksheets or global ones to the workbook. Deprecated in 3.1")
     def create_named_range(self, name, worksheet=None, value=None, scope=None):
-        """Create a new named_range on a worksheet"""
-        defn = DefinedName(name=name, localSheetId=scope)
+        """Create a new named_range on a worksheet
+
+        """
+        defn = DefinedName(name=name)
         if worksheet is not None:
             defn.value = "{0}!{1}".format(quote_sheetname(worksheet.title), value)
         else:
             defn.value = value
 
-        self.defined_names.append(defn)
+        self.defined_names[name] = defn
 
 
     def add_named_style(self, style):
@@ -375,7 +376,7 @@ class Workbook(object):
 
         .. warning::
             When creating your workbook using `write_only` set to True,
-            you will only be able to call this function once. Subsequents attempts to
+            you will only be able to call this function once. Subsequent attempts to
             modify or save the file will raise an :class:`openpyxl.shared.exc.WorkbookAlreadySaved` exception.
         """
         if self.read_only:

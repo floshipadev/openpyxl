@@ -15,14 +15,11 @@ from openpyxl.descriptors import (
 )
 from openpyxl.descriptors.excel import (
     HexBinary,
-    TextPoint,
     Coordinate,
-    ExtensionList,
     Relation,
 )
 from openpyxl.descriptors.nested import (
     NestedInteger,
-    NestedString,
     NestedText,
     NestedValue,
     EmptyTag
