@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2022 openpyxl
+# Copyright (c) 2010-2023 openpyxl
 
 """Worksheet is the 2nd-level container in Excel."""
 
@@ -28,8 +28,6 @@ from openpyxl.packaging.relationship import RelationshipList
 from openpyxl.workbook.child import _WorkbookChild
 from openpyxl.workbook.defined_name import (
     DefinedNameDict,
-    COL_RANGE_RE,
-    ROW_RANGE_RE,
 )
 
 from openpyxl.formula.translate import Translator
@@ -61,6 +59,12 @@ from .pagebreak import RowBreak, ColBreak
 from .scenario import ScenarioList
 from .table import TableList
 from .formula import ArrayFormula
+from .print_settings import (
+    PrintTitles,
+    ColRange,
+    RowRange,
+    PrintArea,
+)
 
 
 class Worksheet(_WorkbookChild):
@@ -128,7 +132,7 @@ class Worksheet(_WorkbookChild):
         self.print_options = PrintOptions()
         self._print_rows = None
         self._print_cols = None
-        self._print_area = None
+        self._print_area = PrintArea()
         self.page_margins = PageMargins()
         self.views = SheetViewList()
         self.protection = SheetProtection()
@@ -254,7 +258,7 @@ class Worksheet(_WorkbookChild):
         Will create a new cell if one doesn't already exist.
         """
         if not 0 < row < 1048577:
-            raise ValueError("Row numbers must be between 1 and 1048576")
+            raise ValueError(f"Row numbers must be between 1 and 1048576. Row number supplied was {row}")
         coordinate = (row, column)
         if not coordinate in self._cells:
             cell = Cell(self, row=row, column=column)
@@ -833,7 +837,7 @@ class Worksheet(_WorkbookChild):
     def print_title_rows(self):
         """Rows to be printed at the top of every page (ex: '1:3')"""
         if self._print_rows:
-            return self._print_rows
+            return str(self._print_rows)
 
 
     @print_title_rows.setter
@@ -843,16 +847,14 @@ class Worksheet(_WorkbookChild):
         format `1:3`
         """
         if rows is not None:
-            if not ROW_RANGE_RE.match(rows):
-                raise ValueError("Print title rows must be the form 1:3")
-        self._print_rows = rows
+            self._print_rows = RowRange(rows)
 
 
     @property
     def print_title_cols(self):
         """Columns to be printed at the left side of every page (ex: 'A:C')"""
         if self._print_cols:
-            return self._print_cols
+            return str(self._print_cols)
 
 
     @print_title_cols.setter
@@ -862,17 +864,13 @@ class Worksheet(_WorkbookChild):
         format ``A:C`
         """
         if cols is not None:
-            if not COL_RANGE_RE.match(cols):
-                raise ValueError("Print title cols must be the form C:D")
-        self._print_cols = cols
+            self._print_cols = ColRange(cols)
 
 
     @property
     def print_titles(self):
-        if self.print_title_cols and self.print_title_rows:
-            return ",".join([self.print_title_rows, self.print_title_cols])
-        else:
-            return self.print_title_rows or self.print_title_cols
+        titles = PrintTitles(cols=self._print_cols, rows=self._print_rows, title=self.title)
+        return str(titles)
 
 
     @property
@@ -881,7 +879,8 @@ class Worksheet(_WorkbookChild):
         The print area for the worksheet, or None if not set. To set, supply a range
         like 'A1:D4' or a list of ranges.
         """
-        return self._print_area
+        self._print_area.title = self.title
+        return str(self._print_area)
 
 
     @print_area.setter
@@ -890,13 +889,12 @@ class Worksheet(_WorkbookChild):
         Range of cells in the form A1:D4 or list of ranges. Print area can be cleared
         by passing `None` or an empty list
         """
-        if isinstance(value, str):
-            value = [value]
-
-        if value is None:
-            self._print_area = None
-        else:
-            self._print_area = [absolute_coordinate(v) for v in value]
+        if not value:
+            self._print_area = PrintArea()
+        elif isinstance(value, str):
+            self._print_area = PrintArea.from_string(value)
+        elif hasattr(value, "__iter__"):
+            self._print_area = PrintArea.from_string(",".join(value))
 
 
 def _gutter(idx, offset, max_val):

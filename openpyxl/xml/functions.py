@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2022 openpyxl
+# Copyright (c) 2010-2023 openpyxl
 
 """
 XML compatibility functions
@@ -84,5 +84,6 @@ def localname(node):
 
 
 def whitespace(node):
-    if node.text != node.text.strip():
+    stripped = node.text.strip()
+    if stripped and node.text != stripped:
         node.set("{%s}space" % XML_NS, "preserve")
