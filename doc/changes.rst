@@ -9,6 +9,12 @@ New Features
 * Support Form Controls
 
 
+Deprecations
+------------
+
+* Python 3.6 is no longer supported
+
+
 3.1.1 (unreleased)
 ==================
 
