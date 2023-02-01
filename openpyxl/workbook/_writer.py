@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2022 openpyxl
+# Copyright (c) 2010-2023 openpyxl
 
 """Write the workbook global settings to the archive."""
 
@@ -109,14 +109,12 @@ class WorkbookWriter:
 
             if sheet.print_titles:
                 name = DefinedName(name="Print_Titles", localSheetId=idx)
-                ranges = [attr for attr in [sheet.print_title_cols, sheet.print_title_rows] if attr]
-                name.value = ",".join([u"{0}!{1}".format(quoted, r) for r in ranges])
+                name.value = sheet.print_titles
                 defined_names.append(name)
 
             if sheet.print_area:
                 name = DefinedName(name="Print_Area", localSheetId=idx)
-                name.value = ",".join([u"{0}!{1}".format(quoted, r)
-                                      for r in sheet.print_area])
+                name.value = sheet.print_area
                 defined_names.append(name)
 
         self.package.definedNames = DefinedNameList(definedName=defined_names)

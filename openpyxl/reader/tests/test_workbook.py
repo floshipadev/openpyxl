@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2022 openpyxl
+# Copyright (c) 2010-2023 openpyxl
 
 from io import BytesIO
 from openpyxl.xml.functions import fromstring
@@ -106,8 +106,8 @@ class TestWorkbookParser:
         assert len(wb.defined_names) == 2
         ws = wb['Sheet']
         assert ws.print_title_rows == "$1:$1"
-        assert ws.print_titles == "$1:$1"
-        assert ws.print_area == ['$A$1:$D$5', '$B$9:$F$14']
+        assert ws.print_titles == "'Sheet'!$1:$1"
+        assert ws.print_area == "'Sheet'!$A$1:$D$5,'Sheet'!$B$9:$F$14"
 
 
     def test_name_invalid_index(self, datadir, WorkbookParser, recwarn):
@@ -155,3 +155,13 @@ class TestWorkbookParser:
         parser.parse()
 
         assert parser.wb.security == expected_protection
+
+    def test_defined_names_print_area(self, datadir, WorkbookParser, recwarn):
+        datadir.chdir()
+        archive = ZipFile("print_area_table_defined_name.xlsx")
+
+        parser = WorkbookParser(archive, ARC_WORKBOOK)
+        parser.parse()
+        parser.assign_names()
+
+        assert recwarn.pop().category == UserWarning
