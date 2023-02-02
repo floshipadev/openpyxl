@@ -268,7 +268,7 @@ def test_write_hidden_single_worksheet():
 def test_write_workbook_rels(datadir, vba, filename, WorkbookWriter):
     datadir.chdir()
     wb = Workbook()
-    wb.vba_archive = vba
+    wb._vba = vba
 
     writer = WorkbookWriter(wb)
     xml = writer.write_rels()
