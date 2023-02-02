@@ -106,14 +106,16 @@ class PictureNonVisual(Serialisable):
         self.cNvPicPr = cNvPicPr
 
 
+
+
 class PictureFrame(Serialisable):
 
     tagname = "pic"
 
     macro = String(allow_none=True)
     fPublished = Bool(allow_none=True)
-    nvPicPr = Typed(expected_type=PictureNonVisual)
-    blipFill = Typed(expected_type=BlipFillProperties)
+    nvPicPr = Typed(expected_type=PictureNonVisual, )
+    blipFill = Typed(expected_type=BlipFillProperties, )
     spPr = Typed(expected_type=GraphicalProperties, )
     graphicalProperties = Alias('spPr')
     style = Typed(expected_type=ShapeStyle, allow_none=True)
@@ -140,10 +142,3 @@ class PictureFrame(Serialisable):
             spPr = GraphicalProperties()
         self.spPr = spPr
         self.style = style
-
-
-    @property
-    def _image(self):
-        blip = self.blipFill.blip
-        if blip is not None and blip.embed:
-            return blip

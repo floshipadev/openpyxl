@@ -1,8 +1,5 @@
 # Copyright (c) 2010-2023 openpyxl
 
-from io import BytesIO
-from warnings import warn
-
 from openpyxl.descriptors.serialisable import Serialisable
 from openpyxl.descriptors import (
     Alias,
@@ -50,9 +47,6 @@ from .effect import (
     LuminanceEffect,
     TintEffect,
 )
-
-from openpyxl.drawing.image import Image
-
 
 """
 Fill elements from drawing main schema
@@ -271,7 +265,6 @@ class Blip(Serialisable):
 
     tagname = "blip"
     namespace = DRAWING_NS
-    blob = None
 
     # Using attribute groupAG_Blob
     cstate = NoneSet(values=(['email', 'screen', 'print', 'hqprint']))
@@ -375,21 +368,6 @@ class Blip(Serialisable):
         self.hsl = hsl
         self.lum = lum
         self.tint = tint
-
-
-    def _read(self, rels, archive):
-        """Read image data from archive"""
-        if self.embed is not None:
-            rel = rels[self.embed]
-            src = archive.read(rel.target)
-            data = BytesIO(src)
-            try:
-                img = Image(data)
-            except OSError:
-                msg = "The image {0} will be removed because it cannot be read".format(rel.target)
-                warn(msg)
-                return
-            return img
 
 
 class TileInfoProperties(Serialisable):

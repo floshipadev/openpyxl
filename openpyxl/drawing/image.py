@@ -7,17 +7,6 @@ try:
 except ImportError:
     PILImage = False
 
-from openpyxl.xml.constants import IMAGE_NS
-from openpyxl.descriptors import (
-    Strict,
-    Typed,
-    Integer,
-    String,
-    Sequence,
-)
-
-from openpyxl.packaging.relationship import Relationship
-
 
 def _import_image(img):
     if not PILImage:
@@ -35,24 +24,18 @@ class Image(object):
     _id = 1
     _path = "/xl/media/image{0}.{1}"
     anchor = "A1"
-    format = "PNG"
-    rel_type = IMAGE_NS
 
-    # Also know as Alt Text, but the xml tag refers to 'descr'
-    desc = None 
-
-    def __init__(self, img, desc = None):
+    def __init__(self, img):
 
         self.ref = img
         mark_to_close = isinstance(img, str)
         image = _import_image(img)
         self.width, self.height = image.size
-        self.desc = desc
 
         try:
-            self.format = image.format
+            self.format = image.format.lower()
         except AttributeError:
-            pass
+            self.format = "png"
         if mark_to_close:
             # PIL instances created for metadata should be closed.
             image.close()
@@ -64,7 +47,7 @@ class Image(object):
         """
         img = _import_image(self.ref)
         # don't convert these file formats
-        if self.format in ['GIF', 'JPEG', 'PNG', "WMF", "EMF"]:
+        if self.format in ['gif', 'jpeg', 'png']:
             img.fp.seek(0)
             fp = img.fp
         else:
@@ -79,43 +62,4 @@ class Image(object):
 
     @property
     def path(self):
-        return self._path.format(self._id, self.format.lower())
-
-
-    def __eq__(self, other):
-        return self.ref == other.ref
-
-
-    def _write(self, archive):
-        archive.writestr(self.path[1:], self._data())
-
-
-class ImageGroup(Strict):
-
-    """
-    A way of grouping pictures in shapes
-    """
-
-    images = Sequence(expected_type=Image)
-    counter = Integer()
-
-
-    def __init__(self,
-                 images=(),
-                 counter=counter,
-                 archive=None,
-                 anchor=None):
-        self.images = images
-        self.counter = 0
-        self.anchor = anchor
-
-
-    def append(self, img):
-        self.images.append(img)
-        self.images = self.images
-
-
-    @property
-    def name(self):
-        return f"Group {self.counter}"
-
+        return self._path.format(self._id, self.format)
