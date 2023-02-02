@@ -101,7 +101,7 @@ class TestRGBPercent:
         colors = RGBPercent(r=30, g=40, b=20)
         xml = tostring(colors.to_tree())
         expected = """
-        <rgbClr b="20" g="40" r="30" />
+        <rgbClr xmlns="http://schemas.openxmlformats.org/drawingml/2006/main" b="20" g="40" r="30" />
         """
         diff = compare_xml(xml, expected)
         assert diff is None, diff

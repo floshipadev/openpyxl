@@ -51,6 +51,7 @@ from .views import (
     Selection,
     SheetViewList,
 )
+from .controls import ControlList
 from .cell_range import MultiCellRange, CellRange
 from .merge import MergedCellRange
 from .properties import WorksheetProperties
@@ -117,6 +118,7 @@ class Worksheet(_WorkbookChild):
         self._cells = {}
         self._charts = []
         self._images = []
+        self._shapes = []
         self._rels = RelationshipList()
         self._drawing = None
         self._comments = []
@@ -143,6 +145,7 @@ class Worksheet(_WorkbookChild):
         self.sheet_properties = WorksheetProperties()
         self.sheet_format = SheetFormatProperties()
         self.scenarios = ScenarioList()
+        self.controls = ControlList()
 
 
     @property

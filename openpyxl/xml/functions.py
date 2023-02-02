@@ -53,7 +53,8 @@ from openpyxl.xml.constants import (
     CUSTPROPS_NS,
     DCTERMS_NS,
     DCTERMS_PREFIX,
-    XML_NS
+    XML_NS,
+    ACTIVEX_NS,
 )
 
 register_namespace(DCTERMS_PREFIX, DCTERMS_NS)
@@ -68,6 +69,7 @@ register_namespace('xdr', SHEET_DRAWING_NS)
 register_namespace('cdr', CHART_DRAWING_NS)
 register_namespace('xml', XML_NS)
 register_namespace('cust', CUSTPROPS_NS)
+register_namespace("ax", ACTIVEX_NS)
 
 
 tostring = partial(tostring, encoding="utf-8")

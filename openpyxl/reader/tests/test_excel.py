@@ -15,6 +15,7 @@ from openpyxl.xml.constants import (
     XLTM,
     XLTX,
 )
+from openpyxl.workbook import Workbook
 
 import pytest
 
@@ -134,14 +135,10 @@ def test_read_stringio(load_workbook):
 def test_load_workbook_with_vba(datadir, load_workbook):
     datadir.chdir()
 
-    test_file = 'legacy_drawing.xlsm'
+    test_file = 'form_controls.xlsm'
     # open the workbook directly from the file
-    wb1 = load_workbook(test_file, keep_vba=True)
-    # open again from a BytesIO copy
-    with open(test_file, 'rb') as f:
-        wb2 = load_workbook(BytesIO(f.read()), keep_vba=True)
-    assert wb1.vba_archive.namelist() == wb2.vba_archive.namelist()
-    assert wb1.vba_archive.namelist() == ZipFile(test_file, 'r').namelist()
+    wb = load_workbook(test_file)
+    assert wb._vba is not None
 
 
 def test_no_external_links(datadir, load_workbook):
@@ -232,3 +229,115 @@ class TestExcelReader:
 
         reader.read_chartsheet(sheet, rel)
         assert reader.wb['chart'].title == "chart"
+
+
+@pytest.fixture
+def WorksheetProcessor():
+    from .. excel import WorksheetProcessor
+    return WorksheetProcessor
+
+
+@pytest.fixture
+def controls(datadir):
+    datadir.chdir()
+    with open("form_controls.xml", "rb") as src:
+        xml = fromstring(src.read())
+    return ControlList.from_tree(xml)
+
+
+from openpyxl.worksheet.controls import (
+    ControlList,
+    FormControl,
+    ActiveXControl,
+)
+
+class TestWorksheetProcessor:
+
+
+    def test_find_children(self, datadir, WorksheetProcessor):
+        datadir.chdir()
+        archive = ZipFile("legacy_drawing.xlsm")
+        wb = Workbook()
+        ws = wb.create_sheet()
+        processor = WorksheetProcessor(ws, archive)
+        processor.find_children("xl/worksheets/sheet1.xml")
+        assert len(processor.rels.vmlDrawing) == 1
+        archive.close()
+
+
+    @pytest.mark.xfail
+    def test_get_controls(self, datadir, WorksheetProcessor, controls):
+        datadir.chdir()
+        archive = ZipFile("form_controls.xlsm")
+        wb = Workbook()
+        ws = wb.create_sheet()
+        ws.controls  = controls
+
+        processor = WorksheetProcessor(ws, archive)
+        processor.find_children("xl/worksheets/sheet1.xml")
+        assert len(processor.rels.ctrlProp) == 2
+        assert len(processor.rels.control) == 5
+        processor.get_controls()
+        assert isinstance(ws.controls.control[-1].shape, FormControl)
+
+        archive.close()
+
+
+    def test_get_activex(self, datadir, WorksheetProcessor, load_workbook):
+        datadir.chdir()
+        archive = ZipFile("form_controls.xlsm")
+        wb = load_workbook("form_controls.xlsm")
+        ws = wb.active
+
+        processor = WorksheetProcessor(ws, archive)
+        processor.find_children("xl/worksheets/sheet1.xml")
+        processor.get_activex()
+        ctrl = ws.controls.control[0].shape
+        assert isinstance(ctrl, ActiveXControl)
+        assert ctrl.bin[:10] == b"@2\x05\xd7i\xce\xcd\x11\xa7w"
+
+        embedded = []
+        for ctrl in ws.controls.control:
+            prop = ctrl.controlPr
+            if prop.id:
+                embedded.append(prop.image)
+
+        assert len(embedded) == 3
+        assert embedded[0].Target == "xl/media/image1.emf"
+        assert embedded[0].blob._data()[:10]  == b"\x01\x00\x00\x00l\x00\x00\x00\x00\x00"
+
+        archive.close()
+
+
+    def test_get_comments(self, datadir, WorksheetProcessor):
+        datadir.chdir()
+        archive = ZipFile("legacy_drawing.xlsm")
+        wb = Workbook()
+        ws = wb.create_sheet()
+
+        processor = WorksheetProcessor(ws, archive)
+        processor.find_children("xl/worksheets/sheet1.xml")
+        processor.get_comments()
+
+        assert ws._cells != {} # make sure sheet is not empty
+        comment = ws["B5"].comment
+        assert comment.author == "Author"
+
+
+    def test_get_legacy(self, datadir, WorksheetProcessor):
+        datadir.chdir()
+        archive = ZipFile("form_controls.xlsm")
+        wb = Workbook()
+        ws = wb.create_sheet()
+        ws.legacy_drawing = "rId3"
+
+        processor = WorksheetProcessor(ws, archive)
+        processor.find_children("xl/worksheets/sheet1.xml")
+        processor.get_legacy()
+
+        drawing = ws.legacy_drawing
+        assert drawing.path == "/xl/drawings/vmlDrawing0.vml"
+        rel = drawing.children.Relationship[0]
+        assert rel.target == "xl/media/image3.emf"
+        assert rel.blob._data()[:10] == b"\x01\x00\x00\x00l\x00\x00\x00\x00\x00"
+

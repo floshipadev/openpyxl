@@ -115,8 +115,6 @@ def test_to_excel_mac(value, expected):
                              (59, datetime(1900, 2, 28)),
                              (-25063, datetime(1831, 5, 18, 0, 0)),
                              (59.875, datetime(1900, 2, 28, 21, 0, 0)),
-                             (60, datetime(1900, 2, 28, 0, 0)),
-                             (60.5, datetime(1900, 2, 28, 12, 0)),
                              (61, datetime(1900, 3, 1, 0, 0)),
                              (40372.27616898148, datetime(2010, 7, 13, 6, 37, 41)),
                              (40196.5939815, datetime(2010, 1, 18, 14, 15, 20, 2000)),
@@ -133,6 +131,17 @@ def test_from_excel(value, expected):
     from ..datetime import from_excel
     FUT = from_excel
     assert FUT(value) == expected
+
+
+@pytest.mark.parametrize("value",
+                         [
+                             60,
+                             60.5,
+                         ])
+def test_invalid_date(value):
+    from ..datetime import from_excel
+    with pytest.raises(ValueError):
+        from_excel(value)
 
 
 @pytest.mark.parametrize("value, expected",

@@ -58,7 +58,7 @@ class Workbook(object):
 
     def __init__(self,
                  write_only=False,
-                 iso_dates=False,
+                 iso_dates=True,
                  ):
         self._sheets = []
         self._pivots = []
@@ -75,6 +75,7 @@ class Workbook(object):
 
         self.loaded_theme = None
         self.vba_archive = None
+        self._vba = None
         self.is_template = False
         self.code_name = None
         self.epoch = WINDOWS_EPOCH
@@ -362,10 +363,9 @@ class Workbook(object):
         The mime type is determined by whether a workbook is a template or
         not and whether it contains macros or not. Excel requires the file
         extension to match but openpyxl does not enforce this.
-
         """
         ct = self.template and XLTX or XLSX
-        if self.vba_archive:
+        if self._vba:
             ct = self.template and XLTM or XLSM
         return ct
 

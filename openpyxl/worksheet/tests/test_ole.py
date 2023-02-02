@@ -5,7 +5,7 @@ import pytest
 from openpyxl.xml.functions import fromstring, tostring
 from openpyxl.tests.helper import compare_xml
 
-from openpyxl.drawing.spreadsheet_drawing import AnchorMarker
+from ..ole import AnchorMarker
 
 
 @pytest.fixture
@@ -24,18 +24,18 @@ class TestObjectAnchor:
         expected = """
         <anchor moveWithCells="0" sizeWithCells="0"
         xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing">
-          <xdr:from>
+          <from>
             <xdr:col>0</xdr:col>
             <xdr:colOff>0</xdr:colOff>
             <xdr:row>0</xdr:row>
             <xdr:rowOff>0</xdr:rowOff>
-          </xdr:from>
-          <xdr:to>
+          </from>
+          <to>
             <xdr:col>0</xdr:col>
             <xdr:colOff>0</xdr:colOff>
             <xdr:row>0</xdr:row>
             <xdr:rowOff>0</xdr:rowOff>
-          </xdr:to>
+          </to>
         </anchor>
         """
         diff = compare_xml(xml, expected)

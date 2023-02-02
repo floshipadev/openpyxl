@@ -5,8 +5,10 @@ from io import BytesIO
 from zipfile import ZipFile
 
 from openpyxl.xml.functions import fromstring, tostring
-from openpyxl.tests.helper import compare_xml
 from openpyxl.xml.constants import WORKSHEET_TYPE
+
+from openpyxl.tests.helper import compare_xml
+
 
 @pytest.fixture
 def FileExtension():
