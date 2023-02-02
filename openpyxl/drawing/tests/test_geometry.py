@@ -5,6 +5,8 @@ import pytest
 from openpyxl.xml.functions import fromstring, tostring
 from openpyxl.tests.helper import compare_xml
 
+from ..geometry import StyleMatrixReference, FontReference
+from ..colors import SchemeColor
 
 @pytest.fixture
 def GradientFillProperties():
@@ -220,3 +222,79 @@ class TestPoint3D:
         node = fromstring(src)
         pt = Point3D.from_tree(node)
         assert pt == Point3D(x=40000, y=60000, z=100000)
+
+
+@pytest.fixture
+def ShapeStyle():
+    from ..geometry import ShapeStyle
+    return ShapeStyle
+
+
+class TestShapeStyle:
+
+
+    def test_ctor(self, ShapeStyle):
+        ln = StyleMatrixReference(idx=2, schemeClr=SchemeColor(val="accent1", shade=50000))
+        fill = StyleMatrixReference(idx=1, schemeClr=SchemeColor(val="accent1"))
+        effect = StyleMatrixReference(idx=0, schemeClr=SchemeColor(val="accent1"))
+        font = FontReference(idx="minor", schemeClr=SchemeColor(val="lt1"))
+        style = ShapeStyle(
+            lnRef=ln,
+            fillRef=fill,
+            effectRef=effect,
+            fontRef=font
+        )
+        xml = tostring(style.to_tree())
+        expected = """
+        <style xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+        <a:lnRef idx="2">
+          <a:schemeClr val="accent1">
+            <a:shade val="50000"/>
+          </a:schemeClr>
+        </a:lnRef>
+        <a:fillRef idx="1">
+          <a:schemeClr val="accent1"/>
+        </a:fillRef>
+        <a:effectRef idx="0">
+          <a:schemeClr val="accent1"/>
+        </a:effectRef>
+        <a:fontRef idx="minor">
+          <a:schemeClr val="lt1"/>
+        </a:fontRef>
+        </style>
+        """
+        diff = compare_xml(xml, expected)
+        assert diff is None, diff
+
+
+    def test_from_xml(self, ShapeStyle):
+        src = """
+        <style xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+        <a:lnRef idx="2">
+          <a:schemeClr val="accent1">
+            <a:shade val="50000"/>
+          </a:schemeClr>
+        </a:lnRef>
+        <a:fillRef idx="1">
+          <a:schemeClr val="accent1"/>
+        </a:fillRef>
+        <a:effectRef idx="0">
+          <a:schemeClr val="accent1"/>
+        </a:effectRef>
+        <a:fontRef idx="minor">
+          <a:schemeClr val="lt1"/>
+        </a:fontRef>
+        </style>
+        """
+        node = fromstring(src)
+        style = ShapeStyle.from_tree(node)
+        ln = StyleMatrixReference(idx=2, schemeClr=SchemeColor(val="accent1", shade=50000))
+        fill = StyleMatrixReference(idx=1, schemeClr=SchemeColor(val="accent1"))
+        effect = StyleMatrixReference(idx=0, schemeClr=SchemeColor(val="accent1"))
+        font = FontReference(idx="minor", schemeClr=SchemeColor(val="lt1"))
+        assert style == ShapeStyle(
+            lnRef=ln,
+            fillRef=fill,
+            effectRef=effect,
+            fontRef=font
+        )

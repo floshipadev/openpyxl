@@ -22,7 +22,7 @@ class TestImage:
     def test_ctor(self, Image, datadir):
         datadir.chdir()
         i = Image(img="plain.png")
-        assert i.format == "png"
+        assert i.format == "PNG"
         assert i.width == 118
         assert i.height == 118
         assert i.anchor == "A1"
@@ -47,14 +47,33 @@ class TestImage:
 
 
     @pytest.mark.pil_required
-    def test_save(self, Image, datadir):
+    @pytest.mark.parametrize("filename, chars",
+                             [
+                                 ("plain.png", b'\x89PNG\r\n\x1a\n\x00\x00'),
+                                 ("checkbox.emf", b"\x01\x00\x00\x00l\x00\x00\x00\x00\x00"),
+                             ]
+                             )
+    def test_save(self, Image, datadir, filename, chars):
         datadir.chdir()
-        img = Image("plain.png")
-        assert img._data()[:10] == b'\x89PNG\r\n\x1a\n\x00\x00'
+        img = Image(filename)
+        assert img._data()[:10] == chars
 
+    @pytest.mark.pil_required
+    def test_save_with_alt_text(self, Image, datadir):
+        datadir.chdir()
+        img = Image("plain.png", "This alt text should not matter")
+        assert img._data()[:10] == b'\x89PNG\r\n\x1a\n\x00\x00'
 
     @pytest.mark.pil_required
     def test_convert(self, Image, datadir):
         datadir.chdir()
         img = Image("plain.tif")
         assert img._data()[:10] == b'\x89PNG\r\n\x1a\n\x00\x00'
+
+
+    @pytest.mark.pil_required
+    def test_compare(self, Image, datadir):
+        datadir.chdir()
+        img1 = Image("plain.png")
+        img2 = Image("plain.png")
+        assert img1 == img2
