@@ -122,9 +122,9 @@ def test_write_invalid_date(worksheet, write_cell_implementation, value, iso_dat
 
 @pytest.mark.parametrize("value, expected, epoch",
                          [
-                             (datetime.date(2011, 12, 25), """<c r="A1" t="n" s="1"><v>40902</v></c>""",
+                             (datetime.date(2011, 12, 25), """<c r="A1" t="d" s="1"><v>2011-12-25</v></c>""",
                               CALENDAR_WINDOWS_1900),
-                             (datetime.date(2011, 12, 25), """<c r="A1" t="n" s="1"><v>39440</v></c>""",
+                             (datetime.date(2011, 12, 25), """<c r="A1" t="d" s="1"><v>2011-12-25</v></c>""",
                               CALENDAR_MAC_1904),
                          ]
                          )
@@ -164,7 +164,7 @@ def test_write_hyperlink(worksheet, write_cell_implementation):
                          [
                              ("test", "test", {'r': 'A1', 't': 'inlineStr'}),
                              ("=SUM(A1:A2)", "=SUM(A1:A2)", {'r': 'A1'}),
-                             (datetime.date(2018, 8, 25), 43337, {'r':'A1', 't':'n'}),
+                             (datetime.date(2018, 8, 25), "2018-08-25", {'r':'A1', 't':'d'}),
                          ]
                          )
 def test_attributes(worksheet, value, result, attrs):

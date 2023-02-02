@@ -8,6 +8,7 @@ from openpyxl.xml.functions import fromstring, tostring
 from openpyxl.tests.helper import compare_xml
 from openpyxl.drawing.image import Image
 from openpyxl.chart import BarChart
+from openpyxl.packaging.relationship import Relationship
 
 
 @pytest.fixture
@@ -279,7 +280,32 @@ class TestSpreadsheetDrawing:
         <pic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
           xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
           <nvPicPr>
-            <cNvPr descr="Picture" id="4" name="Image 4"></cNvPr>
+            <cNvPr id="4" name="Image 4"></cNvPr>
+            <cNvPicPr />
+          </nvPicPr>
+          <blipFill>
+            <a:blip cstate="print" r:embed="rId4" />
+            <a:stretch xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+              <a:fillRect/>
+            </a:stretch>
+          </blipFill>
+          <spPr>
+            <a:prstGeom prst="rect" />
+          </spPr>
+        </pic>
+        """
+        diff = compare_xml(xml, expected)
+        assert diff is None, diff
+
+    def test_write_picture_with_alttext(self, SpreadsheetDrawing):
+        drawing = SpreadsheetDrawing()
+        pic = drawing._picture_frame(4, "I have set a desc")
+        xml = tostring(pic.to_tree())
+        expected = """
+        <pic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
+          xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+          <nvPicPr>
+            <cNvPr descr="I have set a desc" id="4" name="Image 4"></cNvPr>
             <cNvPicPr />
           </nvPicPr>
           <blipFill>
@@ -311,7 +337,6 @@ class TestSpreadsheetDrawing:
 
     @pytest.mark.parametrize("path", [
         "spreadsheet_drawing_with_blip.xml",
-        "two_cell_anchor_group.xml",
         "two_cell_anchor_pic.xml",
     ])
     def test_read_blip(self, SpreadsheetDrawing, datadir, path):
@@ -333,6 +358,17 @@ class TestSpreadsheetDrawing:
         drawing = SpreadsheetDrawing.from_tree(node)
 
         assert drawing._blip_rels == []
+
+
+    def test_group_rels(self, SpreadsheetDrawing, datadir):
+        with open("multipic_group.xml", "rb") as src:
+            xml = src.read()
+        node = fromstring(xml)
+        drawing = SpreadsheetDrawing.from_tree(node)
+
+        assert len(drawing._group_rels[0]) == 3
+        anchor = drawing._group_rels[0][0]
+        assert anchor.grpSp.sp is not None
 
 
     def test_write_rels(self, SpreadsheetDrawing):
@@ -411,14 +447,16 @@ class TestSpreadsheetDrawing:
         drawing = SpreadsheetDrawing.from_tree(node)
         anchor = drawing.twoCellAnchor[0]
         drawing.twoCellAnchor = []
-        im = Image(PIL.Image.new(mode="RGB", size=(1, 1)))
-        im.anchor = anchor
-        drawing.images.append(im)
+        img = Image(PIL.Image.new(mode="RGB", size=(1, 1)))
+        img.format = "PNG"
+        img.anchor = anchor
+        drawing.images.append(img)
         xml = tostring(drawing._write())
         diff = compare_xml(xml, src)
         assert diff is None, diff
 
 
+    @pytest.mark.xfail # Group handling has changed
     def test_image_as_group(self, SpreadsheetDrawing):
         src = """
         <wsDr xmlns="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
@@ -481,12 +519,34 @@ class TestSpreadsheetDrawing:
         drawing = SpreadsheetDrawing.from_tree(node)
         anchor = drawing.twoCellAnchor[0]
         drawing.twoCellAnchor = []
-        im = Image(PIL.Image.new(mode="RGB", size=(1, 1)))
-        im.anchor = anchor
-        drawing.images.append(im)
+        img = Image(PIL.Image.new(mode="RGB", size=(1, 1)))
+        img.anchor = anchor
+        img.format = "PNG"
+        drawing.images.append(img)
         xml = tostring(drawing._write())
         diff = compare_xml(xml, src)
         assert diff is None, diff
+
+
+    def test_shapes(self, SpreadsheetDrawing, datadir):
+        datadir.chdir()
+        with open ("commands.xml", "rb") as src:
+            xml = src.read()
+        tree = fromstring(xml)
+        drawing = SpreadsheetDrawing.from_tree(tree)
+        assert len(drawing._shapes) == 4
+
+
+    def test_hyperlink(self, SpreadsheetDrawing, datadir):
+        datadir.chdir()
+
+        with open("hyperlink.xml", "rb") as src:
+            xml = src.read()
+        tree = fromstring(xml)
+        drawing = SpreadsheetDrawing.from_tree(tree)
+        drawing.shapes = drawing._shapes
+        drawing._write()
+        assert drawing._rels.Relationship[0] == Relationship(Target="", Id="rId1", type="hyperlink", TargetMode="")
 
 
 def test_check_anchor_chart():

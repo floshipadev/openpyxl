@@ -28,18 +28,10 @@ from openpyxl.xml.constants import DRAWING_NS
 
 
 from .colors import ColorChoiceDescriptor
-from .effect import (
-    EffectList,
-    EffectContainer,
-)
-from .fill import(
-    GradientFillProperties,
-    BlipFillProperties,
-    PatternFillProperties,
-    Blip
-)
+from .effect import *
+from .fill import *
+from .line import LineProperties
 from .geometry import (
-    LineProperties,
     Color,
     Scene3D
 )
@@ -73,6 +65,9 @@ class Hyperlink(Serialisable):
     snd = Typed(expected_type=EmbeddedWAVAudioFile, allow_none=True)
     extLst = Typed(expected_type=OfficeArtExtensionList, allow_none=True)
     id = Relation(allow_none=True)
+
+    target = "" # somewhere to store the URL
+    mode = ""
 
     __elements__ = ('snd',)
 
@@ -583,15 +578,17 @@ class GeomGuideList(Serialisable):
 
     gd = Sequence(expected_type=GeomGuide, allow_none=True)
 
+    __elements__ = ("gd",)
+
     def __init__(self,
-                 gd=None,
+                 gd=(),
                 ):
         self.gd = gd
 
 
 class PresetTextShape(Serialisable):
 
-    prst = Typed(expected_type=Set(values=(
+    prst = Set(values=(
         ['textNoShape', 'textPlain','textStop', 'textTriangle', 'textTriangleInverted', 'textChevron',
          'textChevronInverted', 'textRingInside', 'textRingOutside', 'textArchUp',
          'textArchDown', 'textCircle', 'textButton', 'textArchUpPour',
@@ -603,8 +600,10 @@ class PresetTextShape(Serialisable):
          'textFadeRight', 'textFadeLeft', 'textFadeUp', 'textFadeDown',
          'textSlantUp', 'textSlantDown', 'textCascadeUp', 'textCascadeDown'
          ]
-    )))
+    ))
     avLst = Typed(expected_type=GeomGuideList, allow_none=True)
+
+    __elements__ = ("avLst",)
 
     def __init__(self,
                  prst=None,

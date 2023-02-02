@@ -104,6 +104,20 @@ class RelationshipList(Serialisable):
         return tree
 
 
+    def get_types(self):
+        """Return a set of types contained"""
+        known_types = set()
+        for r in self.Relationship:
+            simple = r.Type.split("/")[-1]
+            if simple not in known_types:
+                known_types.add(simple)
+                collection = []
+                setattr(self, simple, collection)
+            else:
+                collection = getattr(self, simple)
+            collection.append(r)
+
+
 def get_rels_path(path):
     """
     Convert relative path to absolutes that can be loaded from a zip
@@ -121,6 +135,8 @@ def get_dependents(archive, filename):
     Normalise dependency file paths to absolute ones
 
     Relative paths are relative to parent object
+
+    Do nothing with hyperlinks
     """
     src = archive.read(filename)
     node = fromstring(src)
@@ -133,7 +149,7 @@ def get_dependents(archive, filename):
     folder = posixpath.dirname(filename)
     parent = posixpath.split(folder)[0]
     for r in rels.Relationship:
-        if r.TargetMode == "External":
+        if r.TargetMode == "External" or "hyperlink" in r.Type:
             continue
         elif r.target.startswith("/"):
             r.target = r.target[1:]
