@@ -15,6 +15,18 @@ Deprecations
 * Python 3.6 is no longer supported
 
 
+Changes
+-------
+
+* Workbooks use ISO dates by default
+
+
+Bugfixes
+--------
+
+* `#1855 <https://foss.heptapod.net/openpyxl/openpyxl/-/issues/1855>`_ Openpyxl implicitly allows 1900-02-29
+
+
 3.1.1 (unreleased)
 ==================
 
