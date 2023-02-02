@@ -58,7 +58,7 @@ class Workbook(object):
 
     def __init__(self,
                  write_only=False,
-                 iso_dates=False,
+                 iso_dates=True,
                  ):
         self._sheets = []
         self._pivots = []
