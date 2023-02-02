@@ -16,7 +16,6 @@ def read_chart(chartspace):
     chart.visible_cells_only = cs.chart.plotVisOnly
     chart.layout = plot.layout
     chart.legend = cs.chart.legend
-    chart.hide_title = cs.chart.autoTitleDeleted
 
     # 3d attributes
     chart.floor = cs.chart.floor

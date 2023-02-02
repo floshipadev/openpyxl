@@ -4,23 +4,14 @@ from openpyxl.xml.functions import (
     Element,
     SubElement,
     tostring,
-    fromstring,
 )
 
-from openpyxl.utils import (
-    coordinate_to_tuple,
-)
+from openpyxl.utils import coordinate_to_tuple
 
 vmlns = "urn:schemas-microsoft-com:vml"
 officens = "urn:schemas-microsoft-com:office:office"
 excelns = "urn:schemas-microsoft-com:office:excel"
 
-
-VML_ROOT = """
-<xml xmlns:v="urn:schemas-microsoft-com:vml"
- xmlns:o="urn:schemas-microsoft-com:office:office"
- xmlns:x="urn:schemas-microsoft-com:office:excel" />
-"""
 
 class ShapeWriter(object):
     """
@@ -66,11 +57,8 @@ class ShapeWriter(object):
 
     def write(self, root):
 
-        if root is None:
-            root = VML_ROOT
-
         if not hasattr(root, "findall"):
-            root = fromstring(root)
+            root = Element("xml")
 
         # Remove any existing comment shapes
         comments = root.findall("{%s}shape[@type='#_x0000_t202']" % vmlns)

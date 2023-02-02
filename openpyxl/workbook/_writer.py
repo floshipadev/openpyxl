@@ -162,7 +162,7 @@ class WorkbookWriter:
         theme =  Relationship(type='theme', Target='theme/theme1.xml')
         self.rels.append(theme)
 
-        if self.wb._vba:
+        if self.wb.vba_archive:
             vba =  Relationship(type='', Target='vbaProject.bin')
             vba.Type ='http://schemas.microsoft.com/office/2006/relationships/vbaProject'
             self.rels.append(vba)

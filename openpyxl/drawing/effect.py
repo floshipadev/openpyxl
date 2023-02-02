@@ -9,7 +9,6 @@ from openpyxl.descriptors import (
     Integer,
     Float,
 )
-from openpyxl.xml.constants import DRAWING_NS
 
 from .colors import ColorChoice
 
@@ -375,8 +374,6 @@ class SoftEdgesEffect(Serialisable):
 
 
 class EffectList(Serialisable):
-
-    namespace = DRAWING_NS
 
     blur = Typed(expected_type=BlurEffect, allow_none=True)
     fillOverlay = Typed(expected_type=FillOverlayEffect, allow_none=True)

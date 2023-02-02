@@ -3,7 +3,6 @@
 from io import BytesIO
 from zipfile import ZipFile
 
-
 def test_read_charts(datadir):
     datadir.chdir()
 
@@ -33,8 +32,8 @@ def test_unsupport_drawing(datadir):
     archive.write("unsupported_drawing.xml", "drawing1.xml")
 
     from ..drawings import find_images
-    charts, images, shapes = find_images(archive, "drawing1.xml")
-    assert charts == images == shapes == []
+    charts, images = find_images(archive, "drawing1.xml")
+    assert charts == images == []
 
 
 def test_unsupported_image_format(datadir):
@@ -45,16 +44,4 @@ def test_unsupported_image_format(datadir):
 
     from ..drawings import find_images
     images = find_images(archive, path)
-    assert images == ([], [], [])
-
-
-def test_hyperlink(datadir):
-    datadir.chdir()
-
-    archive = ZipFile("drawing_with_hyperlink.xlsx", "r")
-    path = "xl/drawings/drawing1.xml"
-
-    from ..drawings import find_images
-    shapes = find_images(archive, path)[-1]
-
-    assert shapes[0].nvSpPr.cNvPr.hlinkClick.target == "http://www.example.org"
+    assert images == ([], [])

@@ -11,8 +11,6 @@ from openpyxl.xml.functions import fromstring
 from openpyxl.xml.constants import CONTYPES_NS
 
 
-import pytest
-
 def test_content_types(datadir):
     datadir.join('reader').chdir()
     fname = 'vba+comments.xlsm'
@@ -27,7 +25,6 @@ def test_content_types(datadir):
         s.add(pn)
 
 
-@pytest.mark.xfail
 def test_save_with_vba(datadir):
     datadir.join('reader').chdir()
     fname = 'vba-test.xlsm'
@@ -85,7 +82,6 @@ def test_save_with_saved_comments(datadir):
         'xl/theme/theme1.xml'
     ])
     assert files == expected
-
 
 def test_save_without_vba(datadir):
     datadir.join('reader').chdir()

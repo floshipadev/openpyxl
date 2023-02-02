@@ -54,10 +54,8 @@ def test_xl_content_type(datadir, tmpl, wb_type):
 def test_save_xl_as_no_template(datadir, tmpl, keep_vba, wb_type):
     datadir.chdir()
 
-    wb = load_workbook(tmpl)
+    wb = load_workbook(tmpl, keep_vba=keep_vba)
     wb.template = False
-    if keep_vba:
-        wb._vba = b"blob"
     tmp = NamedTemporaryFile()
     wb.save(tmp)
     check_content_type(wb_type, tmp)
@@ -72,10 +70,8 @@ def test_save_xl_as_no_template(datadir, tmpl, keep_vba, wb_type):
 def test_save_xl_as_template(datadir, tmpl, keep_vba, wb_type):
     datadir.chdir()
 
-    wb = load_workbook(tmpl)
+    wb = load_workbook(tmpl, keep_vba=keep_vba)
     wb.template = True
-    if keep_vba:
-        wb._vba = b"blob"
     tmp = NamedTemporaryFile()
     wb.save(tmp)
     check_content_type(wb_type, tmp)
