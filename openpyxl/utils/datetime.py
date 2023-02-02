@@ -11,8 +11,7 @@ import re
 # constants
 MAC_EPOCH = datetime.datetime(1904, 1, 1)
 WINDOWS_EPOCH = datetime.datetime(1899, 12, 30)
-CALENDAR_WINDOWS_1900 = 2415018.5   # Julian date of WINDOWS_EPOCH
-CALENDAR_MAC_1904 = 2416480.5       # Julian date of MAC_EPOCH
+STRICT_EPOCH = datetime.datetime(1899, 12, 30)
 CALENDAR_WINDOWS_1900 = WINDOWS_EPOCH
 CALENDAR_MAC_1904 = MAC_EPOCH
 SECS_PER_DAY = 86400
@@ -98,7 +97,10 @@ def to_excel(dt, epoch=WINDOWS_EPOCH):
 
 
 def from_excel(value, epoch=WINDOWS_EPOCH, timedelta=False):
-    """Convert Excel serial to Python datetime"""
+    """Convert Excel serial to Python datetime
+    Excel considers 1900-02-29 to be a legitimate date with the ordinal 60
+    This will raise an exception as an it is an invalid date
+    """
     if value is None:
         return
 
@@ -116,6 +118,8 @@ def from_excel(value, epoch=WINDOWS_EPOCH, timedelta=False):
         return days_to_time(diff)
     if 0 < value < 60 and epoch == WINDOWS_EPOCH:
         day += 1
+    elif 60 <= value < 61:
+        raise ValueError(f"{value} cannot be converted to valid date")
     return epoch + datetime.timedelta(days=day) + diff
 
 
