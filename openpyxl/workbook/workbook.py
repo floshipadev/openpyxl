@@ -58,7 +58,9 @@ class Workbook(object):
     def __init__(self,
                  write_only=False,
                  iso_dates=False,
+                 remove_tzinfo=False,
                  ):
+        self.remove_tzinfo = remove_tzinfo
         self._sheets = []
         self._pivots = []
         self._active_sheet_index = 0

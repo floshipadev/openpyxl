@@ -25,8 +25,11 @@ def _set_attributes(cell, styled=None):
 
     if cell.data_type == "d":
         if hasattr(value, "tzinfo") and value.tzinfo is not None:
-            raise TypeError("Excel does not support timezones in datetimes. "
-                    "The tzinfo in the datetime/time object must be set to None.")
+            if cell.parent.parent.remove_tzinfo:
+                value = value.replace(tzinfo=None)
+            else:
+                raise TypeError("Excel does not support timezones in datetimes. "
+                                "The tzinfo in the datetime/time object must be set to None.")
 
         if cell.parent.parent.iso_dates and not isinstance(value, timedelta):
             value = to_ISO8601(value)
